@@ -41,12 +41,16 @@ public class BookingFragment extends Fragment {
         getActivity().setTitle("Booking List");
         userDatabase = new UserDatabase(getActivity());
         bookingList = userDatabase.getAllBooking();
+        seekerList = userDatabase.getAllUser();
         //historyList = userDatabase.getAllHistoryBooking();
 
         lv = view.findViewById(R.id.listView);
         //adapter = new BookingListHistoryAdapter(getContext(), historyList);
         adapter = new BookingListAdapter(getContext(), bookingList);
         lv.setAdapter(adapter);
+
+        onStart();
+        //adapter.notifyDataSetChanged();
 
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -63,15 +67,16 @@ public class BookingFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("bookingList");
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("bookingList").child(seekerList.get(0).getLaundSeeker_fbid()).child("weeklyBook");
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()) {
                     seekerList = userDatabase.getAllUser();
+                    userDatabase.deleteAllBooking();
 
                     try {
-                        Booking booking;
+                        Booking booking = null;
                         bookingList.clear();
                         //HistoryBooking historyBooking;
                         //historyList.clear();
@@ -88,6 +93,13 @@ public class BookingFragment extends Fragment {
                                     bookingList.add(booking);
                                     //historyList.add(historyBooking);
                                 }
+                            }
+                        }
+
+                        if(booking != null) {
+                            if(seekerList.get(0).getLaundSeeker_fbid().equals(booking.getLaundSeeker_fbid())) {
+                                userDatabase.deleteAllBooking();
+                                userDatabase.addBooking(booking.getBooking_date(), booking.getBooking_id(), booking.getBooking_status(), booking.getBooking_time(), booking.getLaundWorker_fn(), booking.getLaundWorker_fbid(), booking.getLaundWorker_ln(), booking.getLaundWorker_mn(), booking.getLaundWorker_pic(), booking.getLaundSeeker_fbid(), booking.getBooking_service(), booking.getBooking_fee());
                             }
                         }
 

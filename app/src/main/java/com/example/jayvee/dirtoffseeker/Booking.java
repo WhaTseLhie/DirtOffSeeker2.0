@@ -1,8 +1,14 @@
 package com.example.jayvee.dirtoffseeker;
 
-public class Booking {
+import java.io.Serializable;
+
+public class Booking implements Serializable {
 
     String booking_date, booking_id, booking_status, booking_time, laundWorker_fn, laundWorker_fbid, laundWorker_ln, laundWorker_mn, laundWorker_pic, laundSeeker_fbid, booking_service, booking_fee;
+
+    public Booking() {
+        // Empty
+    }
 
     public Booking(String booking_date, String booking_id, String booking_status, String booking_time, String laundWorker_fn, String laundWorker_fbid, String laundWorker_ln, String laundWorker_mn, String laundWorker_pic, String laundSeeker_fbid, String booking_service, String booking_fee) {
         this.booking_date = booking_date;
@@ -17,10 +23,6 @@ public class Booking {
         this.laundSeeker_fbid = laundSeeker_fbid;
         this.booking_service = booking_service;
         this.booking_fee = booking_fee;
-    }
-
-    public Booking() {
-        // Empty Constructor
     }
 
     public String getBooking_date() {

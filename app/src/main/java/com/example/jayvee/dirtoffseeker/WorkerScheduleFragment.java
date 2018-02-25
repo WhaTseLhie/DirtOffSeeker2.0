@@ -1,6 +1,7 @@
 package com.example.jayvee.dirtoffseeker;
 
 
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,10 +22,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 
-public class WorkerScheduleFragment extends Fragment {
+public class WorkerScheduleFragment extends Fragment implements DatePickerDialog.OnDateSetListener {
 
     UserDatabase userDatabase;
     DatabaseReference mDatabase;
@@ -31,11 +37,17 @@ public class WorkerScheduleFragment extends Fragment {
     //ArrayList<Booking> bookingList = new ArrayList<>();
     ArrayList<HistoryBooking> historyList = new ArrayList<>();
     ListView lvWeekly, lvMonthly;
-    ArrayList<MyAvailabilityMonthly> monthList = new ArrayList<>();
+    //ArrayList<MyAvailabilityMonthly> monthList = new ArrayList<>();
     ArrayList<MyAvailabilityWeekly> weekList = new ArrayList<>();
-    MyAvailabilityMonthlyAdapter monthlyAdapter;
+    //MyAvailabilityMonthlyAdapter monthlyAdapter;
     MyAvailabilityWeeklyAdapter weeklyAdapter;
-    String booking_date, booking_time, laundWorker_fn, laundWorker_fbid, laundWorker_ln, laundWorker_mn, laundWorker_pic, laundSeeker_fbid, booking_service = "";
+    TextView txtBulk;
+    String booking_id, booking_date, booking_time, laundWorker_fn, laundWorker_fbid, laundWorker_ln, laundWorker_mn, laundWorker_pic, laundSeeker_fbid, booking_service = "";
+    Calendar calendar;
+    //String bday = "";
+    String weekDays = "";
+    int day = 10;
+    private String d = "";
 
     public WorkerScheduleFragment() {
         // Required empty public constructor
@@ -48,16 +60,36 @@ public class WorkerScheduleFragment extends Fragment {
         userDatabase = new UserDatabase(getActivity());
         //bookingList = userDatabase.getAllBooking();
         historyList = userDatabase.getAllHistoryBooking();
+        txtBulk = view.findViewById(R.id.textView);
 
-        lvMonthly = view.findViewById(R.id.listView);
-        monthlyAdapter = new MyAvailabilityMonthlyAdapter(getActivity(), monthList);
-        lvMonthly.setAdapter(monthlyAdapter);
+        calendar = Calendar.getInstance();
+        txtBulk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DatePickerDialog dialog = new DatePickerDialog(getActivity(), WorkerScheduleFragment.this, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+                dialog.show();
+
+                ArrayList<User> userList = userDatabase.getAllUser();
+                //booking_date = bday;
+                booking_time = "12am-11:59pm";
+                laundWorker_fn = workerList.get(0).getLaundWorker_fn();
+                laundWorker_fbid = workerList.get(0).getLaundWorker_fbid();
+                laundWorker_ln = workerList.get(0).getLaundWorker_ln();
+                laundWorker_mn = workerList.get(0).getLaundWorker_mn();
+                laundWorker_pic = workerList.get(0).getLaundWorker_pic();
+                laundSeeker_fbid = userList.get(0).getLaundSeeker_fbid();
+            }
+        });
+
+        //lvMonthly = view.findViewById(R.id.listView);
+        //monthlyAdapter = new MyAvailabilityMonthlyAdapter(getActivity(), monthList);
+        //lvMonthly.setAdapter(monthlyAdapter);
 
         lvWeekly = view.findViewById(R.id.listView1);
         weeklyAdapter = new MyAvailabilityWeeklyAdapter(getActivity(), weekList);
         lvWeekly.setAdapter(weeklyAdapter);
 
-        lvMonthly.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        /*lvMonthly.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 ArrayList<User> userList = userDatabase.getAllUser();
@@ -70,6 +102,8 @@ public class WorkerScheduleFragment extends Fragment {
                 laundWorker_pic = workerList.get(i).getLaundWorker_pic();
                 laundSeeker_fbid = userList.get(i).getLaundSeeker_fbid();
 
+
+                ////////////////////////////////////////////////////////
                 final Dialog dialog = new Dialog(getContext());
                 dialog.setContentView(R.layout.dialog_select_service);
 
@@ -105,13 +139,30 @@ public class WorkerScheduleFragment extends Fragment {
                 });
 
                 dialog.show();
+                ////////////////////////////////////////////////////////
             }
-        });
+        });*/
 
+        userDatabase = new UserDatabase(getActivity());
+        workerList = userDatabase.getAllWorker();
         lvWeekly.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                ArrayList<User> userList = userDatabase.getAllUser();
+                booking_id = weekList.get(i).getAvailability_key();
+                booking_date = weekList.get(i).getAvailability_dayOfTheWeek();
+                booking_time = weekList.get(i).getAvailability_startTime() + " - " + weekList.get(i).getAvailability_endTime();
+                laundWorker_fn = workerList.get(0).getLaundWorker_fn();
+                laundWorker_fbid = workerList.get(0).getLaundWorker_fbid();
+                laundWorker_ln = workerList.get(0).getLaundWorker_ln();
+                laundWorker_mn = workerList.get(0).getLaundWorker_mn();
+                laundWorker_pic = workerList.get(0).getLaundWorker_pic();
+                laundSeeker_fbid = userList.get(0).getLaundSeeker_fbid();
+
+                LaundryBasketActivity.start(getContext(), new Booking(booking_date,
+                        booking_id, "", booking_time, laundWorker_fn, laundWorker_fbid,
+                        laundWorker_ln, laundWorker_mn, laundWorker_pic, laundSeeker_fbid, "", "0"));
+                /*AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                 builder.setTitle("Confirmation");
                 builder.setMessage("Are you sure you want to book this worker's schedule?");
                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -128,13 +179,11 @@ public class WorkerScheduleFragment extends Fragment {
                 });
 
                 AlertDialog dialog = builder.create();
-                dialog.show();
+                dialog.show();*/
             }
         });
 
-        userDatabase = new UserDatabase(getActivity());
-        workerList = userDatabase.getAllWorker();
-        mDatabase = FirebaseDatabase.getInstance().getReference().child("laundrySchedule").child(workerList.get(0).getLaundWorker_fbid()).child("modeMonthly");
+        /*mDatabase = FirebaseDatabase.getInstance().getReference().child("laundrySchedule").child(workerList.get(0).getLaundWorker_fbid()).child("modeMonthly");
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -163,7 +212,7 @@ public class WorkerScheduleFragment extends Fragment {
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
+        });*/
 
         mDatabase = FirebaseDatabase.getInstance().getReference().child("laundrySchedule").child(workerList.get(0).getLaundWorker_fbid()).child("modeWeekly");
         mDatabase.addValueEventListener(new ValueEventListener() {
@@ -173,13 +222,15 @@ public class WorkerScheduleFragment extends Fragment {
                     try {
                         MyAvailabilityWeekly weekly;
                         weekList.clear();
-                        userDatabase.deleteAllAvailabilityMonthly();
+                        weekDays = "";
+                        userDatabase.deleteAllAvailabilityWeekly();
 
                         for(DataSnapshot child : dataSnapshot.getChildren()) {
                             weekly = child.getValue(MyAvailabilityWeekly.class);
                             weekList.add(weekly);
                             if(weekly != null) {
                                 userDatabase.addAvailabilityWeekly(weekly.getAvailability_dayOfTheWeek(), weekly.getAvailability_endTime(), weekly.getAvailability_key(), weekly.getAvailability_monthOf(), weekly.getAvailability_startTime());
+                                weekDays += weekly.getAvailability_dayOfTheWeek().toLowerCase();
                             }
                         }
 
@@ -199,7 +250,76 @@ public class WorkerScheduleFragment extends Fragment {
         return view;
     }
 
-    private void showBookingInformation() {
+    @Override
+    public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+        calendar.set(Calendar.YEAR, i);
+        calendar.set(Calendar.MONTH, (i1+1));
+        calendar.set(Calendar.DAY_OF_MONTH, i2);
+        day = calendar.get(Calendar.DAY_OF_WEEK);
+
+        switch(day) {
+            case Calendar.SUNDAY:
+                d = "Sunday";
+                break;
+            case Calendar.MONDAY:
+                d = "Monday";
+                break;
+            case Calendar.TUESDAY:
+                d = "Tuesday";
+                break;
+            case Calendar.WEDNESDAY:
+                d = "Wednesday";
+                break;
+            case Calendar.THURSDAY:
+                d = "Thursday";
+                break;
+            case Calendar.FRIDAY:
+                d = "Friday";
+                break;
+            case Calendar.SATURDAY:
+                d = "Saturday";
+                break;
+        }
+        updateLabel();
+    }
+
+    private void updateLabel() {
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
+        booking_date = sdf.format(calendar.getTime());
+        String cDate = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH).format(new Date());
+        Date currentDate = null;
+        Date bookDate = null;
+
+        try {
+            currentDate = sdf.parse(cDate);
+            bookDate = sdf.parse(booking_date);
+        } catch(Exception e) {
+            Toast.makeText(getActivity(), "Error" +e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+
+        /////////////
+        /*Toast.makeText(getContext(), "currentdate: " +currentDate, Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(), "bookDate: " +bookDate, Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(), "cDate: " +cDate, Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(), "booking_date: " +booking_date, Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(), "weekdays: " +weekDays.toLowerCase(), Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(), "d: " +d.toLowerCase(), Toast.LENGTH_LONG).show();*/
+        /////////////
+
+        if(bookDate != null && bookDate.after(currentDate)) {
+            if(!weekDays.toLowerCase().contains(d.toLowerCase())) {
+                LaundryBasketBulkyActivity.start(getContext(), new Booking(booking_date,
+                        "", "", booking_time, laundWorker_fn, laundWorker_fbid,
+                        laundWorker_ln, laundWorker_mn, laundWorker_pic, laundSeeker_fbid, "", "0"));
+            } else {
+                Toast.makeText(getContext(), "Dates with weekly schedules are not allowed", Toast.LENGTH_LONG).show();
+            }
+        } else {
+            Toast.makeText(getContext(), "Past dates are not allowed", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /*private void showBookingInformation() {
         Toast.makeText(getContext(), booking_service, Toast.LENGTH_LONG).show();
         if(!booking_service.equals("")) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -262,5 +382,5 @@ public class WorkerScheduleFragment extends Fragment {
             AlertDialog dialog1 = builder.create();
             dialog1.show();
         }
-    }
+    }*/
 }

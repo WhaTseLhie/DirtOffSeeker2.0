@@ -46,7 +46,7 @@ public class MyAvailabilityWeeklyAdapter extends BaseAdapter {
             view = inflater.inflate(R.layout.activity_myavailability_weekly_adapter, null);
             handler = new ItemHandler();
 
-            handler.txtMonthOf = view.findViewById(R.id.txtMonthOf);
+            //handler.txtMonthOf = view.findViewById(R.id.txtMonthOf);
             handler.txtDayOfTheWeek = view.findViewById(R.id.textView);
             handler.txtStartTime = view.findViewById(R.id.textView1);
             handler.txtEndTime = view.findViewById(R.id.textView2);
@@ -56,7 +56,7 @@ public class MyAvailabilityWeeklyAdapter extends BaseAdapter {
             handler = (ItemHandler) view.getTag();
         }
 
-        handler.txtMonthOf.setText(new StringBuilder().append("Month: ").append(list.get(i).getAvailability_monthOf()));
+        //handler.txtMonthOf.setText(new StringBuilder().append("Month: ").append(list.get(i).getAvailability_monthOf()));
         handler.txtDayOfTheWeek.setText(new StringBuilder().append("Day: ").append(list.get(i).getAvailability_dayOfTheWeek()));
         handler.txtStartTime.setText(new StringBuilder().append("Start Time: ").append(list.get(i).getAvailability_startTime()));
         handler.txtEndTime.setText(new StringBuilder().append("End Time: ").append(list.get(i).getAvailability_endTime()));
@@ -65,6 +65,6 @@ public class MyAvailabilityWeeklyAdapter extends BaseAdapter {
     }
 
     static class ItemHandler {
-        TextView txtMonthOf, txtDayOfTheWeek, txtStartTime, txtEndTime;
+        TextView txtDayOfTheWeek, txtStartTime, txtEndTime;//txtMonthOf,
     }
 }

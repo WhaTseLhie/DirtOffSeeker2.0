@@ -23,6 +23,15 @@
         <item>Reviews</item>
     </string-array>
 
+    <string-array name="clothings">
+        <item>Shirt</item>
+        <item>Pants</item>
+        <item>Short</item>
+        <item>Brief</item>
+        <item>Panty</item>
+        <item>Socks</item>
+    </string-array>
+
     <string name="action_settings">Settings</string>
 
     <string name="facebook_app_id">866765336819444</string>

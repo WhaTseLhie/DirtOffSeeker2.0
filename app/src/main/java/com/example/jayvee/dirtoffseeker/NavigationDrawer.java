@@ -98,6 +98,8 @@ public class NavigationDrawer extends AppCompatActivity implements NavigationVie
             userdb.deleteAllUser();
             this.finish();
         }
+
+        onNavigationItemSelected(navigationView.getMenu().getItem(0));
     }
 
     public class DownloadImage extends AsyncTask<String, Void, Bitmap> {
@@ -217,11 +219,14 @@ public class NavigationDrawer extends AppCompatActivity implements NavigationVie
         int id = item.getItemId();
 
         if (id == R.id.nav_worker) {
-            if(list.get(0).getLaundSeeker_status().equalsIgnoreCase("verified")) {
-                Intent workerIntent = new Intent(NavigationDrawer.this, FindWorkerActivity.class);
-                startActivity(workerIntent);
+            if (list.get(0).getLaundSeeker_status().equalsIgnoreCase("verified")) {
+//                Intent workerIntent = new Intent(NavigationDrawer.this, FindWorkerActivity.class);
+//                startActivity(workerIntent);
+                FindWorkerFragment fragment = new FindWorkerFragment();
+                getSupportFragmentManager().beginTransaction().replace(R.id.linearLayout, fragment, fragment.getTag()).commit();
+                getSupportActionBar().setTitle("Find Laundry Worker");
             } else {
-                Toast.makeText(this, "Unverified users are not allowed to book", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Unverified or Blocked users are not allowed to book", Toast.LENGTH_LONG).show();
             }
         } else if (id == R.id.nav_account) {
             Intent accountIntent = new Intent(NavigationDrawer.this, MyAccount.class);
@@ -234,6 +239,7 @@ public class NavigationDrawer extends AppCompatActivity implements NavigationVie
                     inboxFragment,
                     inboxFragment.getTag()
             ).commit();
+            getSupportActionBar().setTitle("Messages");
         } else if (id == R.id.nav_booking_list) {
             BookingFragment bookingFragment = new BookingFragment();
             FragmentManager bookingManager = getSupportFragmentManager();
@@ -242,6 +248,7 @@ public class NavigationDrawer extends AppCompatActivity implements NavigationVie
                     bookingFragment,
                     bookingFragment.getTag()
             ).commit();
+            getSupportActionBar().setTitle("Booking List");
         } else if (id == R.id.nav_wallet) {
             WalletFragment walletFragment = new WalletFragment();
             FragmentManager walletManager = getSupportFragmentManager();
@@ -250,6 +257,7 @@ public class NavigationDrawer extends AppCompatActivity implements NavigationVie
                     walletFragment,
                     walletFragment.getTag()
             ).commit();
+            getSupportActionBar().setTitle("E-Wallet");
         } else if (id == R.id.nav_support) {
             SupportFragment supportFragment = new SupportFragment();
             FragmentManager supportManager = getSupportFragmentManager();
@@ -258,6 +266,7 @@ public class NavigationDrawer extends AppCompatActivity implements NavigationVie
                     supportFragment,
                     supportFragment.getTag()
             ).commit();
+            getSupportActionBar().setTitle("Support");
         } else if (id == R.id.nav_logout) {
             LoginManager.getInstance().logOut();
             this.userdb.deleteAllUser();

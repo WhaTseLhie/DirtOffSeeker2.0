@@ -37,7 +37,6 @@ public class WorkerProfileFragment extends Fragment {
         userDatabase = new UserDatabase(getActivity());
         list = userDatabase.getAllWorker();
 
-        mDatabase = FirebaseDatabase.getInstance().getReference().child("laundryWorkers").child(this.list.get(0).getLaundWorker_fbid());
         txtFName = view.findViewById(R.id.textView2);
         txtMName = view.findViewById(R.id.textView4);
         txtLName = view.findViewById(R.id.textView6);
@@ -48,6 +47,7 @@ public class WorkerProfileFragment extends Fragment {
         txtDateApplied = view.findViewById(R.id.textView16);
         txtStatus = view.findViewById(R.id.textView18);
 
+        mDatabase = FirebaseDatabase.getInstance().getReference().child("laundryWorkers").child(this.list.get(0).getLaundWorker_fbid());
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -61,8 +61,26 @@ public class WorkerProfileFragment extends Fragment {
                     txtBdate.setText(dataSnapshot.child("laundWorker_bdate").getValue(String.class));
                     txtDateApplied.setText(dataSnapshot.child("laundWorker_dateApplied").getValue(String.class));
                     txtStatus.setText(dataSnapshot.child("laundWorker_status").getValue(String.class));
-                } else {
-                    Toast.makeText(getActivity(), "Error! Please check your internet connection", Toast.LENGTH_LONG).show();
+
+                    /*Worker worker = null;
+
+                    for(DataSnapshot child : dataSnapshot.getChildren()) {
+                        worker = child.getValue(Worker.class);
+                    }
+
+                    if(worker != null) {
+                        userDatabase.addWorker(worker.getLaundWorker_address(),
+                                worker.getLaundWorker_bdate(),
+                                worker.getLaundWorker_cnum(),
+                                worker.getLaundWorker_dateApplied(),
+                                worker.getLaundWorker_email(),
+                                worker.getLaundWorker_fbid(),
+                                worker.getLaundWorker_fn(),
+                                worker.getLaundWorker_ln(),
+                                worker.getLaundWorker_mn(),
+                                worker.getLaundWorker_pic(),
+                                worker.getLaundWorker_status());
+                    }*/
                 }
             }
 

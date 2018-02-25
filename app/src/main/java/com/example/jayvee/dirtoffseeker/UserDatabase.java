@@ -43,7 +43,7 @@ public class UserDatabase extends SQLiteOpenHelper {
         arg0.execSQL(sql5);
         String sql6 = "CREATE TABLE " +TBL_FEEDBACK+ "(feedback_comment varchar(150), feedback_id varchar(20) primary key, feedback_rating varchar(10), feedback_seekerId varchar(20), feedback_workerId varchar(20))";
         arg0.execSQL(sql6);
-        String sql7 = "CREATE TABLE " +TBL_BOOKING+ "(booking_date varchar(15), booking_id varchar(20) primary key, booking_status varchar(10), booking_time varchar(15), laundWorker_fn varchar(20), laundWorker_fbid varchar(20), laundWorker_ln varchar(20), laundWorker_mn varchar(20), laundWorker_pic varchar(100), laundSeeker_fbid varchar(20), booking_service varchar(20), booking_fee varchar(20))";
+        String sql7 = "CREATE TABLE " +TBL_BOOKING+ "(id integer primary key autoincrement, booking_date varchar(15), booking_id varchar(20), booking_status varchar(10), booking_time varchar(15), laundWorker_fn varchar(20), laundWorker_fbid varchar(20), laundWorker_ln varchar(20), laundWorker_mn varchar(20), laundWorker_pic varchar(100), laundSeeker_fbid varchar(20), booking_service varchar(20), booking_fee varchar(20))";
         arg0.execSQL(sql7);
         String sql8 = "CREATE TABLE " +TBL_HISTORY_BOOKING+ "(booking_date varchar(15), booking_id varchar(20) primary key, booking_status varchar(10), booking_time varchar(15), laundWorker_fn varchar(20), laundWorker_fbid varchar(20), laundWorker_ln varchar(20), laundWorker_mn varchar(20), laundWorker_pic varchar(100), laundSeeker_fbid varchar(20), booking_service varchar(20), booking_fee varchar(15))";
         arg0.execSQL(sql8);

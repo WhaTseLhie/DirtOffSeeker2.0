@@ -3,6 +3,7 @@ package com.example.jayvee.dirtoffseeker;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -14,6 +15,8 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -38,7 +41,12 @@ public class BookingInformationActivity extends AppCompatActivity {
     ArrayList<Worker> workerList = new ArrayList<>();
     String content;//, service;
     Toolbar toolbar;
-    double totfee;
+    double totfee = 0;
+    EditText txtContent;
+    RatingBar rbReview;
+    String com = "", rate = "";
+    RatingBar ratingBar;
+    TextView txtComment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +63,7 @@ public class BookingInformationActivity extends AppCompatActivity {
         userDatabase = new UserDatabase(this);
         seekerList = userDatabase.getAllUser();
         bookingList = userDatabase.getAllBooking();
+        workerList = userDatabase.getAllWorker();
 
         this.txtName = (TextView) this.findViewById(R.id.textView);
         this.txtEmail = (TextView) this.findViewById(R.id.textView1);
@@ -67,18 +76,65 @@ public class BookingInformationActivity extends AppCompatActivity {
         this.txtFee = (TextView) this.findViewById(R.id.textView8);
         this.btnConfirm = (Button) this.findViewById(R.id.button);
         this.btnReport = (Button) this.findViewById(R.id.button1);
+        this.rbReview = (RatingBar) this.findViewById(R.id.ratingBar);
+        //rbReview.setRating(1.0f);
+
+        /*DatabaseReference mDB = FirebaseDatabase.getInstance().getReference().child("bookingList");
+        mDB.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()) {
+                    String fbid = dataSnapshot.child("laundWorker_fbid").getValue(String.class);
+
+                    if(fbid != null) {
+                        Toast.makeText(BookingInformationActivity.this, "fbid" + fbid, Toast.LENGTH_LONG).show();
+                        DatabaseReference mDatabase10 = FirebaseDatabase.getInstance().getReference().child("workerRates").child(fbid);
+                        mDatabase10.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot1) {
+                                if (dataSnapshot1.exists()) {
+                                    //////////////////////////////////
+                                    String stars = "";
+                                    Toast.makeText(BookingInformationActivity.this, "children count" + dataSnapshot.getChildrenCount(), Toast.LENGTH_LONG).show();
+                                    for (int i = 0; i < dataSnapshot1.getChildrenCount(); i++) {
+                                        stars += dataSnapshot1.child("rate_bar").getValue(String.class);
+                                    }
+
+                                    long aveStars = Integer.parseInt(stars) / dataSnapshot.getChildrenCount();
+                                    /////////////////////////
+                                    String star = dataSnapshot1.child("rate_bar").getValue(String.class);
+                                    rbReview.setRating(Float.parseFloat(star));
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+                                Toast.makeText(BookingInformationActivity.this, "oncandeldc", Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+                } else {
+                    Toast.makeText(BookingInformationActivity.this, "fbid null", Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(BookingInformationActivity.this, "Error! Please check your internet connection", Toast.LENGTH_LONG).show();
+            }
+        });*/
 
         workerList = userDatabase.getAllWorker();
-        DatabaseReference mDb = FirebaseDatabase.getInstance().getReference().child("laundryWorkers").child(workerList.get(0).getLaundWorker_fbid());
-        mDb.addValueEventListener(new ValueEventListener() {
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("laundryWorkers").child(workerList.get(0).getLaundWorker_fbid());
+        mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()) {
                     String name = dataSnapshot.child("laundWorker_fn").getValue(String.class) +" "+ dataSnapshot.child("laundWorker_mn").getValue(String.class) +" "+ dataSnapshot.child("laundWorker_ln").getValue(String.class);
-                    txtName.setText("Name: " +name);
-                    txtEmail.setText("Email: " +dataSnapshot.child("laundWorker_email").getValue(String.class));
-                    txtContact.setText("Contact: " +dataSnapshot.child("laundWorker_cnum").getValue(String.class));
-                    txtAddress.setText("Address: " +dataSnapshot.child("laundWorker_address").getValue(String.class));
+                    txtName.setText(new StringBuilder().append("Name: ").append(name));
+                    txtEmail.setText(new StringBuilder().append("Email: ").append(dataSnapshot.child("laundWorker_email").getValue(String.class)));
+                    txtContact.setText(new StringBuilder().append("Contact: ").append(dataSnapshot.child("laundWorker_cnum").getValue(String.class)));
+                    txtAddress.setText(new StringBuilder().append("Address: ").append(dataSnapshot.child("laundWorker_address").getValue(String.class)));
                 }
             }
 
@@ -88,13 +144,13 @@ public class BookingInformationActivity extends AppCompatActivity {
             }
         });
 
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("bookingList");
-        mDatabase.addValueEventListener(new ValueEventListener() {
+        DatabaseReference mDatabaseR = FirebaseDatabase.getInstance().getReference().child("bookingList").child(workerList.get(0).getLaundWorker_fbid()).child("weeklyBook");
+        mDatabaseR.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()) {
                     UserDatabase userDatabase = new UserDatabase(BookingInformationActivity.this);
-                    seekerList = userDatabase.getAllUser();
+                    //seekerList = userDatabase.getAllUser();
 
                     try {
                         Booking booking = null;
@@ -104,9 +160,7 @@ public class BookingInformationActivity extends AppCompatActivity {
                             booking = child.getValue(Booking.class);
 
                             if(booking != null) {
-                                if(seekerList.get(0).getLaundSeeker_fbid().equals(booking.getLaundSeeker_fbid())) {
-                                    bookingList.add(booking);
-                                }
+                                bookingList.add(booking);
                             }
                         }
 
@@ -151,30 +205,29 @@ public class BookingInformationActivity extends AppCompatActivity {
             }
         });
 
-        DatabaseReference mDbase = FirebaseDatabase.getInstance().getReference().child("laundryServices").child(workerList.get(0).getLaundWorker_fbid());
-        mDbase.addValueEventListener(new ValueEventListener() {
+        DatabaseReference mDatabase2 = FirebaseDatabase.getInstance().getReference().child("laundryServices").child(workerList.get(0).getLaundWorker_fbid());
+        mDatabase2.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()) {
-                    String totalfee = dataSnapshot.child("monthlyServicesFee").getValue(String.class);
+                    String totalfee = dataSnapshot.child("weeklyServicesFee").getValue(String.class);
 
                     int fee = 0;
                     StringTokenizer tokens = new StringTokenizer(totalfee, ",");
                     if(tokens.hasMoreTokens()) {
                         while(tokens.hasMoreTokens()) {
                             String tokenStr = tokens.nextToken();
-                            if(tokenStr.equals(bookingList.get(0).getBooking_service())) {
-                                fee = Integer.parseInt(tokens.nextToken());
-                                break;
+                            //if(tokenStr.equals(bookinList.get(0).getBoogking_service())) {
+
+                            if(bookingList.get(0).getBooking_service().toLowerCase().contains(tokenStr.toLowerCase())) {
+                                fee += Integer.parseInt(tokens.nextToken());
                             }
                         }
                     }
 
-                    if(fee != 0) {
-                        totfee = fee + (fee*0.2);
-                    }
-                    txtFee.setText("Total Fees: " +totfee);
+                    totfee = fee + (fee * 0.2);
                     bookingList.get(0).setBooking_fee(""+totfee);
+                    txtFee.setText("Total Fees: " +totfee);
                 }
             }
 
@@ -201,7 +254,7 @@ public class BookingInformationActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 //if (!bookingList.isEmpty()) {
                                 //if (bookingList.get(0).getBooking_status().equalsIgnoreCase("Progress")) {
-                                DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("bookingList").child(bookingList.get(0).getBooking_id());
+                                /*DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("bookingList").child(bookingList.get(0).getLaundSeeker_fbid()).child("weeklyBook");
                                 HashMap<String, String> hashMap = new HashMap<>();
 
                                 hashMap.put("booking_date", bookingList.get(0).getBooking_date());
@@ -220,9 +273,81 @@ public class BookingInformationActivity extends AppCompatActivity {
 
                                 bookingList = userDatabase.getAllBooking();
                                 userDatabase.deleteAllBooking();
-                                userDatabase.addBooking(bookingList.get(0).getBooking_date(), bookingList.get(0).getBooking_id(), "Done", bookingList.get(0).getBooking_time(), bookingList.get(0).getLaundWorker_fn(), bookingList.get(0).getLaundWorker_fbid(), bookingList.get(0).getLaundWorker_ln(), bookingList.get(0).getLaundWorker_mn(), bookingList.get(0).getLaundWorker_pic(), bookingList.get(0).getLaundSeeker_fbid(), bookingList.get(0).getBooking_service(), bookingList.get(0).getBooking_fee());
+                                userDatabase.addBooking(bookingList.get(0).getBooking_date(), bookingList.get(0).getBooking_id(), "Done", bookingList.get(0).getBooking_time(), bookingList.get(0).getLaundWorker_fn(), bookingList.get(0).getLaundWorker_fbid(), bookingList.get(0).getLaundWorker_ln(), bookingList.get(0).getLaundWorker_mn(), bookingList.get(0).getLaundWorker_pic(), bookingList.get(0).getLaundSeeker_fbid(), bookingList.get(0).getBooking_service(), bookingList.get(0).getBooking_fee());*/
 
-                                DatabaseReference mDb = FirebaseDatabase.getInstance().getReference().child("bookingListHistory").child(bookingList.get(0).getBooking_id());
+                                DatabaseReference mDatabase14 = FirebaseDatabase.getInstance().getReference().child("bookingList").child(bookingList.get(0).getLaundWorker_fbid()).child("weeklyBook");
+                                HashMap<String, String> hashMap1 = new HashMap<>();
+
+                                hashMap1.put("booking_date", bookingList.get(0).getBooking_date());
+                                hashMap1.put("booking_fee", bookingList.get(0).getBooking_fee());
+                                hashMap1.put("booking_id", bookingList.get(0).getBooking_id());
+                                hashMap1.put("booking_service", bookingList.get(0).getBooking_service());
+                                hashMap1.put("booking_status", "Done");
+                                hashMap1.put("booking_time", bookingList.get(0).getBooking_time());
+                                hashMap1.put("laundSeeker_fbid", bookingList.get(0).getLaundSeeker_fbid());
+                                hashMap1.put("laundWorker_fbid", bookingList.get(0).getLaundWorker_fbid());
+                                hashMap1.put("laundWorker_fn", bookingList.get(0).getLaundWorker_fn());
+                                hashMap1.put("laundWorker_ln", bookingList.get(0).getLaundWorker_ln());
+                                hashMap1.put("laundWorker_mn", bookingList.get(0).getLaundWorker_mn());
+                                hashMap1.put("laundWorker_pic", bookingList.get(0).getLaundWorker_pic());
+                                mDatabase14.child("1").setValue(hashMap1);
+
+                                AlertDialog.Builder builder1 = new AlertDialog.Builder(BookingInformationActivity.this);
+                                builder1.setTitle("Rebook");
+                                builder1.setMessage("Do you still want to continue?");
+                                builder1.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        DatabaseReference mDatabase3 = FirebaseDatabase.getInstance().getReference().child("bookingList").child(workerList.get(0).getLaundWorker_fbid()).child("weeklyBook");
+
+                                        HashMap<String, String> hashMap = new HashMap<>();
+                                        hashMap.put("booking_date", bookingList.get(0).getBooking_date());
+                                        hashMap.put("booking_id", bookingList.get(0).getBooking_id());
+                                        hashMap.put("booking_status", "PENDING");
+                                        hashMap.put("booking_time", bookingList.get(0).getBooking_time());
+                                        hashMap.put("laundWorker_fn", bookingList.get(0).getLaundWorker_fn());
+                                        hashMap.put("laundWorker_fbid", bookingList.get(0).getLaundWorker_fbid());
+                                        hashMap.put("laundWorker_ln", bookingList.get(0).getLaundWorker_ln());
+                                        hashMap.put("laundWorker_mn", bookingList.get(0).getLaundWorker_mn());
+                                        hashMap.put("laundWorker_pic", bookingList.get(0).getLaundWorker_pic());
+                                        hashMap.put("laundSeeker_fbid", bookingList.get(0).getLaundSeeker_fbid());
+                                        hashMap.put("booking_service", bookingList.get(0).getBooking_service());
+                                        hashMap.put("booking_fee", bookingList.get(0).getBooking_fee());
+
+                                        mDatabase3.child("1").setValue(hashMap);
+                                        userDatabase.deleteAllBooking();
+                                        userDatabase.addBooking(
+                                                bookingList.get(0).getBooking_date(),
+                                                bookingList.get(0).getBooking_id(),
+                                                "PENDING",
+                                                bookingList.get(0).getBooking_time(),
+                                                bookingList.get(0).getLaundWorker_fn(),
+                                                bookingList.get(0).getLaundWorker_fbid(),
+                                                bookingList.get(0).getLaundWorker_ln(),
+                                                bookingList.get(0).getLaundWorker_mn(),
+                                                bookingList.get(0).getLaundWorker_pic(),
+                                                bookingList.get(0).getLaundSeeker_fbid(),
+                                                bookingList.get(0).getBooking_service(),
+                                                bookingList.get(0).getBooking_fee()
+                                        );
+
+                                        Toast.makeText(BookingInformationActivity.this, "Rebook Success", Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                                builder1.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        DatabaseReference mDatabaseRef = FirebaseDatabase.getInstance().getReference().child("laundrySchedule").child(bookingList.get(0).getLaundWorker_fbid()).child("modeWeekly");
+                                        mDatabaseRef.child(bookingList.get(0).getBooking_id()).removeValue();
+
+                                        Toast.makeText(BookingInformationActivity.this, "Booking Canceled", Toast.LENGTH_LONG).show();
+                                    }
+                                });
+
+                                AlertDialog dialog1 = builder1.create();
+                                dialog1.show();
+
+                                /*DatabaseReference mDatabase3 = FirebaseDatabase.getInstance().getReference().child("bookingListHistory").child(bookingList.get(0).getBooking_id());
                                 HashMap<String, String> hash = new HashMap<>();
 
                                 hash.put("booking_date", bookingList.get(0).getBooking_date());
@@ -237,13 +362,13 @@ public class BookingInformationActivity extends AppCompatActivity {
                                 hash.put("laundSeeker_fbid", bookingList.get(0).getLaundSeeker_fbid());
                                 hash.put("booking_service", bookingList.get(0).getBooking_service());
                                 hash.put("booking_fee", bookingList.get(0).getBooking_fee());
-                                mDb.setValue(hash);
+                                mDatabase3.setValue(hash);
 
                                 userDatabase.addHistoryBooking(bookingList.get(0).getBooking_date(), bookingList.get(0).getBooking_id(), "Done", bookingList.get(0).getBooking_time(), bookingList.get(0).getLaundWorker_fn(), bookingList.get(0).getLaundWorker_fbid(), bookingList.get(0).getLaundWorker_ln(), bookingList.get(0).getLaundWorker_mn(), bookingList.get(0).getLaundWorker_pic(), bookingList.get(0).getLaundSeeker_fbid(), bookingList.get(0).getBooking_service(), bookingList.get(0).getBooking_fee());
-                                Toast.makeText(BookingInformationActivity.this, "Confirm Success", Toast.LENGTH_LONG).show();
+                                Toast.makeText(BookingInformationActivity.this, "Confirm Success", Toast.LENGTH_LONG).show();*/
 
                                 //booking_id, payout_date, payout_fee, payout_id;
-                                DatabaseReference mydb = FirebaseDatabase.getInstance().getReference().child("laundrySeeker").child(seekerList.get(0).getLaundSeeker_fbid());
+                                DatabaseReference mDatabase4 = FirebaseDatabase.getInstance().getReference().child("laundrySeekers").child(seekerList.get(0).getLaundSeeker_fbid());
                                 seekerList = userDatabase.getAllUser();
 
                                 double tfee = 120.0;
@@ -265,16 +390,16 @@ public class BookingInformationActivity extends AppCompatActivity {
                                 hashMap2.put("laundSeeker_pic", seekerList.get(0).getLaundSeeker_pic());
                                 hashMap2.put("laundSeeker_status", seekerList.get(0).getLaundSeeker_status());
                                 hashMap2.put("laundSeeker_totalbal", str1);
-                                mydb.setValue(hashMap2);
+                                mDatabase4.setValue(hashMap2);
 
-                                DatabaseReference mdb = FirebaseDatabase.getInstance().getReference().child("walletPayout").child(seekerList.get(0).getLaundSeeker_fbid());
+                                DatabaseReference mDatabase5 = FirebaseDatabase.getInstance().getReference().child("walletPayout").child(seekerList.get(0).getLaundSeeker_fbid());
                                 HashMap<String, String> hashmap = new HashMap<>();
-                                String key = mdb.push().getKey();
+                                String key = mDatabase5.push().getKey();
                                 hashmap.put("booking_id", bookingList.get(0).getBooking_id());
                                 hashmap.put("payout_date", new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH).format(new Date()));
                                 hashmap.put("payout_fee", "" + totfee);
                                 hashmap.put("payout_id", key);
-                                mdb.child(key).setValue(hashmap);
+                                mDatabase5.child(key).setValue(hashmap);
                                 //}
                                 //} else {
                                 //Toast.makeText(BookingInformationActivity.this, "Empty", Toast.LENGTH_LONG).show();
@@ -303,7 +428,7 @@ public class BookingInformationActivity extends AppCompatActivity {
                 final Dialog dialog = new Dialog(BookingInformationActivity.this);
                 dialog.setContentView(R.layout.dialog_report_content);
 
-                final EditText txtContent = dialog.findViewById(R.id.editText);
+                txtContent = dialog.findViewById(R.id.editText);
                 Button btnSubmit = dialog.findViewById(R.id.button);
                 Button btnCancel = dialog.findViewById(R.id.button1);
                 //content = txtContent.getText().toString();
@@ -316,7 +441,6 @@ public class BookingInformationActivity extends AppCompatActivity {
 
                         String key = mDatabase.push().getKey();
                         hashMap.put("booking_id", bookingList.get(0).getBooking_id());
-                        //hashMap.put("content", content);
                         hashMap.put("content", txtContent.getText().toString());
                         hashMap.put("status", "Unread");
                         hashMap.put("dateSent", new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH).format(new Date()));
@@ -340,32 +464,79 @@ public class BookingInformationActivity extends AppCompatActivity {
                 dialog.show();
             }
         });
+
+        DatabaseReference mDatabase7 = FirebaseDatabase.getInstance().getReference().child("workerRates").child(bookingList.get(0).getLaundWorker_fbid());
+        mDatabase7.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()) {
+                    Rating rating;
+                    Float starf = 0.0f;
+
+                    //Toast.makeText(BookingInformationActivity.this, dataSnapshot.getChildrenCount()+ " children count", Toast.LENGTH_LONG).show();
+                    for(DataSnapshot child : dataSnapshot.getChildren()) {
+                        rating = child.getValue(Rating.class);
+                        //Toast.makeText(BookingInformationActivity.this, rating.getRate_bar()+ " rate bar", Toast.LENGTH_LONG).show();
+                        if(rating != null) {
+                            starf += Float.parseFloat(rating.getRate_bar());
+                        }
+                    }
+
+                    rbReview.setRating(starf/dataSnapshot.getChildrenCount());
+                }
+
+                /*Float stars = 0.0f;
+                String starf = "";
+
+                if(dataSnapshot12.exists()) {
+                    starf = dataSnapshot12.child("rate_bar").getValue(String.class);
+                    Toast.makeText(BookingInformationActivity.this, starf+ "starf", Toast.LENGTH_LONG).show();
+
+                    try {
+                        stars = Float.parseFloat(starf);
+                    } catch(Exception e) {
+                        Toast.makeText(BookingInformationActivity.this, stars+ "stars", Toast.LENGTH_LONG).show();
+                    }
+                    rbReview.setRating(stars);
+                }*/
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private void rateWorker() {
         final Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_rate_worker);
 
-        final EditText txtComment = dialog.findViewById(R.id.editText);
-        final RatingBar ratingBar = dialog.findViewById(R.id.ratingBar);
+        txtComment = dialog.findViewById(R.id.editText);
+        ratingBar = dialog.findViewById(R.id.ratingBar);
         Button btnSub = dialog.findViewById(R.id.button);
 
-        final String com = txtComment.getText().toString();
-        final String rate = ""+ratingBar.getRating();
 
         btnSub.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DatabaseReference dbreference = FirebaseDatabase.getInstance().getReference().child("workerRates");
-                String k = dbreference.push().getKey();
-                HashMap<String, String> hm = new HashMap<>();
-                hm.put("rate_id", k);
-                hm.put("rate_comment", com);
-                hm.put("rate_bar", rate);
-                dbreference.child(k).setValue(hm);
+                com = txtComment.getText().toString();
+                rate = ""+ratingBar.getRating();
 
-                Toast.makeText(BookingInformationActivity.this, "Rate Success", Toast.LENGTH_LONG).show();
-                dialog.dismiss();
+                if(!rate.equals("") && !com.trim().equals("")) {
+                    DatabaseReference mDatabase6 = FirebaseDatabase.getInstance().getReference().child("workerRates").child(bookingList.get(0).getLaundWorker_fbid());
+                    String k = mDatabase6.push().getKey();
+                    HashMap<String, String> hm = new HashMap<>();
+                    hm.put("rate_id", k);
+                    hm.put("rate_comment", com);
+                    hm.put("rate_bar", rate);
+                    mDatabase6.child(k).setValue(hm);
+
+                    Toast.makeText(BookingInformationActivity.this, "Rate Success", Toast.LENGTH_LONG).show();
+                    dialog.dismiss();
+                } else {
+                    Toast.makeText(BookingInformationActivity.this, "Please fill all fields", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
