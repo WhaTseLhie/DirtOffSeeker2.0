@@ -1,9 +1,11 @@
 package com.example.jayvee.dirtoffseeker;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,12 +25,12 @@ import java.util.ArrayList;
 public class BookingFragment extends Fragment {
 
     ListView lv;
-    //BookingListHistoryAdapter adapter;
     BookingListAdapter adapter;
     ArrayList<Booking> bookingList = new ArrayList<>();
-    //ArrayList<HistoryBooking> historyList = new ArrayList<>();
-    ArrayList<User> seekerList = new ArrayList<>();
+    ArrayList<Worker> workerList = new ArrayList<>();
     UserDatabase userDatabase;
+    SwipeRefreshLayout refreshLayout;
+    private Context mContext;
 
     public BookingFragment() {
         // Required empty public constructor
@@ -39,18 +41,20 @@ public class BookingFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_booking, container, false);
 
         getActivity().setTitle("Booking List");
-        userDatabase = new UserDatabase(getActivity());
+        mContext = getActivity();
+        userDatabase = new UserDatabase(mContext);
         bookingList = userDatabase.getAllBooking();
-        seekerList = userDatabase.getAllUser();
-        //historyList = userDatabase.getAllHistoryBooking();
 
+        refreshLayout = view.findViewById(R.id.refreshLayout);
         lv = view.findViewById(R.id.listView);
-        //adapter = new BookingListHistoryAdapter(getContext(), historyList);
-        adapter = new BookingListAdapter(getContext(), bookingList);
-        lv.setAdapter(adapter);
 
-        onStart();
-        //adapter.notifyDataSetChanged();
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshItems();
+                refreshLayout.setRefreshing(false);
+            }
+        });
 
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -63,59 +67,55 @@ public class BookingFragment extends Fragment {
         return view;
     }
 
+    private void refreshItems() {
+        onStart();
+
+        refreshLayout.setRefreshing(false);
+    }
+
     @Override
     public void onStart() {
         super.onStart();
 
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("bookingList").child(seekerList.get(0).getLaundSeeker_fbid()).child("weeklyBook");
-        mDatabase.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()) {
-                    seekerList = userDatabase.getAllUser();
-                    userDatabase.deleteAllBooking();
-
-                    try {
-                        Booking booking = null;
+        workerList = userDatabase.getAllWorker();
+        if(!workerList.isEmpty()) {
+            DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("bookingList").child(workerList.get(0).getLaundWorker_fbid()).child("weeklyBook");
+            mDatabase.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
                         bookingList.clear();
-                        //HistoryBooking historyBooking;
-                        //historyList.clear();
 
-                        for(DataSnapshot child : dataSnapshot.getChildren()) {
-                            booking = child.getValue(Booking.class);
-                            //historyBooking = child.getValue(HistoryBooking.class);
+                        try {
+                            Booking booking = null;
 
-                            if(booking != null) {
-                            //if(historyBooking != null) {
-                                //if(seekerList.get(0).getLaundSeeker_fbid().equals(booking.getLaundSeeker_fbid())) {
-                                //if(seekerList.get(0).getLaundSeeker_fbid().equals(historyBooking.getLaundSeeker_fbid())) {
-                                if(seekerList.get(0).getLaundSeeker_fbid().equals(booking.getLaundSeeker_fbid())) {
+                            for (DataSnapshot child : dataSnapshot.getChildren()) {
+                                booking = child.getValue(Booking.class);
+
+                                if (booking != null) {
                                     bookingList.add(booking);
-                                    //historyList.add(historyBooking);
                                 }
                             }
-                        }
 
-                        if(booking != null) {
-                            if(seekerList.get(0).getLaundSeeker_fbid().equals(booking.getLaundSeeker_fbid())) {
+                            if (booking != null) {
                                 userDatabase.deleteAllBooking();
                                 userDatabase.addBooking(booking.getBooking_date(), booking.getBooking_id(), booking.getBooking_status(), booking.getBooking_time(), booking.getLaundWorker_fn(), booking.getLaundWorker_fbid(), booking.getLaundWorker_ln(), booking.getLaundWorker_mn(), booking.getLaundWorker_pic(), booking.getLaundSeeker_fbid(), booking.getBooking_service(), booking.getBooking_fee());
                             }
-                        }
 
-                        adapter.notifyDataSetChanged();
-                    } catch(Exception e) {
-                        //Toast.makeText(getActivity(), "Error " +e.getMessage(), Toast.LENGTH_LONG).show();
-                        Toast.makeText(getActivity(), "Error ", Toast.LENGTH_LONG).show();
-                        e.printStackTrace();
+                            adapter = new BookingListAdapter(mContext, bookingList);
+                            lv.setAdapter(adapter);
+                        } catch (Exception e) {
+                            Toast.makeText(mContext, "Error ", Toast.LENGTH_LONG).show();
+                            e.printStackTrace();
+                        }
                     }
                 }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
-            }
-        });
+                }
+            });
+        }
     }
 }

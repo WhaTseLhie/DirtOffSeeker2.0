@@ -61,26 +61,6 @@ public class WorkerProfileFragment extends Fragment {
                     txtBdate.setText(dataSnapshot.child("laundWorker_bdate").getValue(String.class));
                     txtDateApplied.setText(dataSnapshot.child("laundWorker_dateApplied").getValue(String.class));
                     txtStatus.setText(dataSnapshot.child("laundWorker_status").getValue(String.class));
-
-                    /*Worker worker = null;
-
-                    for(DataSnapshot child : dataSnapshot.getChildren()) {
-                        worker = child.getValue(Worker.class);
-                    }
-
-                    if(worker != null) {
-                        userDatabase.addWorker(worker.getLaundWorker_address(),
-                                worker.getLaundWorker_bdate(),
-                                worker.getLaundWorker_cnum(),
-                                worker.getLaundWorker_dateApplied(),
-                                worker.getLaundWorker_email(),
-                                worker.getLaundWorker_fbid(),
-                                worker.getLaundWorker_fn(),
-                                worker.getLaundWorker_ln(),
-                                worker.getLaundWorker_mn(),
-                                worker.getLaundWorker_pic(),
-                                worker.getLaundWorker_status());
-                    }*/
                 }
             }
 

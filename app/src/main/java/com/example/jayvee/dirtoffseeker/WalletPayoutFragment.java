@@ -74,5 +74,4 @@ public class WalletPayoutFragment extends Fragment {
 
         return view;
     }
-
 }

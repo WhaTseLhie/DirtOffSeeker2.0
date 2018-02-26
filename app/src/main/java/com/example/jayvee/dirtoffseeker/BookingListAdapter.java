@@ -11,6 +11,13 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
+
 import java.util.ArrayList;
 
 public class BookingListAdapter extends BaseAdapter {
@@ -18,6 +25,7 @@ public class BookingListAdapter extends BaseAdapter {
     Context context;
     ArrayList<Booking> list;
     LayoutInflater inflater;
+    BookingHandler handler;
 
     public BookingListAdapter(Context context, ArrayList<Booking> list) {
         this.context = context;
@@ -42,8 +50,6 @@ public class BookingListAdapter extends BaseAdapter {
 
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
-        BookingHandler handler;
-
         if(view == null) {
             handler = new BookingHandler();
             view = inflater.inflate(R.layout.adapter_booking_list_, null);
@@ -58,19 +64,38 @@ public class BookingListAdapter extends BaseAdapter {
             handler = (BookingHandler) view.getTag();
         }
 
-        //handler.imgPic.setImageURI();
+        Picasso.with(view.getContext()).load(list.get(i).getLaundWorker_pic()).transform(new CircleTransform()).into(handler.imgPic);
         handler.txtName.setText(new StringBuilder().append(list.get(i).getLaundWorker_fn()).append(" ").append(list.get(i).getLaundWorker_mn()).append(" ").append(list.get(i).getLaundWorker_ln()));
         handler.txtDate.setText(list.get(i).getBooking_date());
         handler.txtTime.setText(list.get(i).getBooking_time());
-        if(list.get(i).getBooking_status().equalsIgnoreCase("Done")) {
-            handler.imgStatus.setImageResource(R.drawable.ic_status_done);
-        } else if(list.get(i).getBooking_status().equalsIgnoreCase("Progress")) {
-            handler.imgStatus.setImageResource(R.drawable.ic_status_progress);
-        } else if(list.get(i).getBooking_status().equalsIgnoreCase("Pending")) {
-            handler.imgStatus.setImageResource(R.drawable.ic_status_pending);
-        } else if(list.get(i).getBooking_status().equalsIgnoreCase("Canceled")) {
-            handler.imgStatus.setImageResource(R.drawable.ic_status_canceled);
-        }
+
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("bookingList").child(list.get(0).getLaundWorker_fbid()).child("weeklyBook");
+        mDatabase.child("1").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String status = dataSnapshot.child("booking_status").getValue(String.class);
+
+                switch(status.toLowerCase()) {
+                    case "done":
+                        handler.imgStatus.setImageResource(R.drawable.ic_status_done);
+                        break;
+                    case "progress":
+                        handler.imgStatus.setImageResource(R.drawable.ic_status_progress);
+                        break;
+                    case "pending":
+                        handler.imgStatus.setImageResource(R.drawable.ic_status_pending);
+                        break;
+                    case "canceled":
+                        handler.imgStatus.setImageResource(R.drawable.ic_status_canceled);
+                        break;
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         return view;
     }

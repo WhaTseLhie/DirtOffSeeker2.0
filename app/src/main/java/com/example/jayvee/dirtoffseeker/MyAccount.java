@@ -18,6 +18,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,7 +55,8 @@ public class MyAccount extends AppCompatActivity {
         txtStatus = (EditText) this.findViewById(R.id.editText6);
 
         if(!list.isEmpty()) {
-            iv.setImageURI(Uri.parse(list.get(0).getLaundSeeker_pic()));
+            //iv.setImageURI(Uri.parse(list.get(0).getLaundSeeker_pic()));
+            Picasso.with(this).load(list.get(0).getLaundSeeker_pic()).transform(new CircleTransform()).into(iv);
             txtFullName.setText(new StringBuilder().append(list.get(0).getLaundSeeker_fn()).append(" ").append(list.get(0).getLaundSeeker_ln()));
             txtEmail.setText(list.get(0).getLaundSeeker_email());
             txtGender.setText(list.get(0).getLaundSeeker_gender());

@@ -50,10 +50,13 @@ public class InboxFragment extends Fragment {
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    FirebaseDatabase.getInstance().getReference().child("chatMessages").child(workerList.get(0).getLaundWorker_fbid()).push().setValue(new ChatMessage(input.getText().toString(),
-                            workerList.get(0).getLaundWorker_fn() + " " + workerList.get(0).getLaundWorker_mn() + " " + workerList.get(0).getLaundWorker_ln()));
-                    input.setText("");
-                    displayChatMessages();
+                    if(!input.getText().toString().trim().equals("")) {
+                        FirebaseDatabase.getInstance().getReference().child("chatMessages").child(workerList.get(0).getLaundWorker_fbid()).push().setValue(new ChatMessage(input.getText().toString(),
+                                workerList.get(0).getLaundWorker_fn() + " " + workerList.get(0).getLaundWorker_mn() + " " + workerList.get(0).getLaundWorker_ln()));
+                        FirebaseDatabase.getInstance().getReference().child("chatMessages").child(workerList.get(0).getLaundWorker_fbid()).keepSynced(true);
+                        input.setText("");
+                        displayChatMessages();
+                    }
                 }
             });
 

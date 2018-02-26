@@ -131,7 +131,7 @@ public class FindWorkerActivity extends AppCompatActivity implements DialogInter
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         workerList.clear();
-                        userdb.deleteAllWorker();
+                        //userdb.deleteAllWorker();
                         String address = txtLocation.getText().toString().toLowerCase();
 
                         for (DataSnapshot child : dataSnapshot.getChildren()) {
@@ -139,7 +139,7 @@ public class FindWorkerActivity extends AppCompatActivity implements DialogInter
 
                             if(worker != null && worker.getLaundWorker_status().equalsIgnoreCase("Verified") && worker.getLaundWorker_address().toLowerCase().contains(address)) {
                                 workerList.add(worker);
-                                userdb.addWorker(worker.getLaundWorker_address(), worker.getLaundWorker_bdate(), worker.getLaundWorker_cnum(), worker.getLaundWorker_dateApplied(), worker.getLaundWorker_email(), worker.getLaundWorker_fbid(), worker.getLaundWorker_fn(), worker.getLaundWorker_ln(), worker.getLaundWorker_mn(), worker.getLaundWorker_pic(), worker.getLaundWorker_status());
+                                //userdb.addWorker(worker.getLaundWorker_address(), worker.getLaundWorker_bdate(), worker.getLaundWorker_cnum(), worker.getLaundWorker_dateApplied(), worker.getLaundWorker_email(), worker.getLaundWorker_fbid(), worker.getLaundWorker_fn(), worker.getLaundWorker_ln(), worker.getLaundWorker_mn(), worker.getLaundWorker_pic(), worker.getLaundWorker_status());
                             }
                         }
 
@@ -159,6 +159,20 @@ public class FindWorkerActivity extends AppCompatActivity implements DialogInter
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 list = userdb.getAllUser();
                 if(!list.get(0).getLaundSeeker_totalbal().equals("")) {
+                    userdb.deleteAllWorker();
+                    userdb.addWorker(
+                            workerList.get(i).getLaundWorker_address(),
+                            workerList.get(i).getLaundWorker_bdate(),
+                            workerList.get(i).getLaundWorker_cnum(),
+                            workerList.get(i).getLaundWorker_dateApplied(),
+                            workerList.get(i).getLaundWorker_email(),
+                            workerList.get(i).getLaundWorker_fbid(),
+                            workerList.get(i).getLaundWorker_fn(),
+                            workerList.get(i).getLaundWorker_ln(),
+                            workerList.get(i).getLaundWorker_mn(),
+                            workerList.get(i).getLaundWorker_pic(),
+                            workerList.get(i).getLaundWorker_status());
+
                     Intent workerIntent = new Intent(FindWorkerActivity.this, WorkerProfileActivity.class);
                     startActivity(workerIntent);
                 } else {

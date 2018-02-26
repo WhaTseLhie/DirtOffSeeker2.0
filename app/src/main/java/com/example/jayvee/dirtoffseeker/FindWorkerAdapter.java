@@ -10,6 +10,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.ArrayList;
 
 public class FindWorkerAdapter extends BaseAdapter {
@@ -41,7 +43,7 @@ public class FindWorkerAdapter extends BaseAdapter {
 
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
-        ItemHandler handler = null;
+        ItemHandler handler;
 
         if(view == null) {
             view = inflater.inflate(R.layout.activity_find_worker_adapter, null);
@@ -58,7 +60,8 @@ public class FindWorkerAdapter extends BaseAdapter {
             handler = (ItemHandler) view.getTag();
         }
 
-        handler.txtName.setText(list.get(i).getLaundWorker_fn() +" "+ list.get(i).getLaundWorker_mn() +" "+ list.get(i).getLaundWorker_ln());
+        Picasso.with(view.getContext()).load(list.get(i).getLaundWorker_pic()).transform(new CircleTransform()).into(handler.iv);
+        handler.txtName.setText(new StringBuilder().append(list.get(i).getLaundWorker_fn()).append(" ").append(list.get(i).getLaundWorker_mn()).append(" ").append(list.get(i).getLaundWorker_ln()));
         handler.txtAddress.setText(list.get(i).getLaundWorker_address());
         handler.txtEmail.setText(list.get(i).getLaundWorker_email());
         handler.txtCnum.setText(list.get(i).getLaundWorker_cnum());

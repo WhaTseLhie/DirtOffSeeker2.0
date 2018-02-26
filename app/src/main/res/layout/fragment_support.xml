@@ -5,10 +5,23 @@
     android:layout_height="match_parent"
     tools:context="com.example.jayvee.dirtoffseeker.SupportFragment">
 
+    <TextView
+        android:id="@+id/textView"
+        android:layout_marginTop="20dp"
+        android:text="Email"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
+        android:textColor="@color/black"
+        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <EditText
         android:id="@+id/editText"
-        android:layout_margin="20dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         android:padding="10dp"
+        android:background="#f0f0f0"
         android:hint="Comment here"
         android:layout_width="match_parent"
         android:layout_height="150dp" />
@@ -21,5 +34,4 @@
         android:layout_marginLeft="50dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
-
 </LinearLayout>

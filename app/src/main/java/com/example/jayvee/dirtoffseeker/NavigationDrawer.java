@@ -31,6 +31,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -72,14 +73,15 @@ public class NavigationDrawer extends AppCompatActivity implements NavigationVie
         if(!list.isEmpty()) {
             String fname = this.list.get(0).getLaundSeeker_fn();
             String lname = this.list.get(0).getLaundSeeker_ln();
-            String image = this.list.get(0).getLaundSeeker_pic();
+            String url = this.list.get(0).getLaundSeeker_pic();
             String str = fname+ " " +lname;
 
             iv = headerView.findViewById(R.id.imageView);
+            Picasso.with(this).load(url).transform(new CircleTransform()).into(iv);
             navFullname = headerView.findViewById(R.id.textView);
             navFullname.setText(str);
 
-            if(image != null) {
+            /*if(image != null) {
                 if (!image.startsWith("file")) {
                     new NavigationDrawer.DownloadImage(iv).execute(image);
                 } else {
@@ -91,7 +93,7 @@ public class NavigationDrawer extends AppCompatActivity implements NavigationVie
                 }
             } else {
                 Toast.makeText(this, "image null", Toast.LENGTH_LONG).show();
-            }
+            }*/
         } else {
             Toast.makeText(this, "Something went wrong! Please restart the application", Toast.LENGTH_LONG).show();
             LoginManager.getInstance().logOut();
@@ -102,7 +104,7 @@ public class NavigationDrawer extends AppCompatActivity implements NavigationVie
         onNavigationItemSelected(navigationView.getMenu().getItem(0));
     }
 
-    public class DownloadImage extends AsyncTask<String, Void, Bitmap> {
+    /*public class DownloadImage extends AsyncTask<String, Void, Bitmap> {
         ImageView bmImage;
         Uri uri;
         UserDatabase db;
@@ -154,9 +156,6 @@ public class NavigationDrawer extends AppCompatActivity implements NavigationVie
             } catch(Exception e) {
                 //Log.d("TAG", e.getMessage());
             }
-            /*RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), result);
-            roundedBitmapDrawable.setCircular(true);
-            bmImage.setImageDrawable(roundedBitmapDrawable);*/
         }
 
         private Uri getImageUri(Bitmap icon) {
@@ -201,7 +200,7 @@ public class NavigationDrawer extends AppCompatActivity implements NavigationVie
 
             return inSampleSize;
         }
-    }
+    }*/
 
     @Override
     public void onBackPressed() {

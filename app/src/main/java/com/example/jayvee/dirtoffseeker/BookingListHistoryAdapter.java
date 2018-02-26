@@ -8,6 +8,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.ArrayList;
 
 public class BookingListHistoryAdapter extends BaseAdapter {
@@ -55,7 +57,7 @@ public class BookingListHistoryAdapter extends BaseAdapter {
             handler = (BookingHandler) view.getTag();
         }
 
-        //handler.imgPic.setImageURI();
+        Picasso.with(view.getContext()).load(list.get(i).getLaundWorker_pic()).transform(new CircleTransform()).into(handler.imgPic);
         handler.txtName.setText(new StringBuilder().append(list.get(i).getLaundWorker_fn()).append(" ").append(list.get(i).getLaundWorker_mn()).append(" ").append(list.get(i).getLaundWorker_ln()));
         handler.txtDate.setText(list.get(i).getBooking_date());
         handler.txtTime.setText(list.get(i).getBooking_time());
