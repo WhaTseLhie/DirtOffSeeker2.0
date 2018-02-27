@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -50,6 +51,8 @@ public class BookingListAdapter extends BaseAdapter {
 
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
+
+
         if(view == null) {
             handler = new BookingHandler();
             view = inflater.inflate(R.layout.adapter_booking_list_, null);
@@ -69,23 +72,25 @@ public class BookingListAdapter extends BaseAdapter {
         handler.txtDate.setText(list.get(i).getBooking_date());
         handler.txtTime.setText(list.get(i).getBooking_time());
 
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("bookingList").child(list.get(0).getLaundWorker_fbid()).child("weeklyBook");
-        mDatabase.child("1").addValueEventListener(new ValueEventListener() {
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("bookingList").child(list.get(i).getLaundWorker_fbid()).child("weeklyBook");
+        mDatabase.child(list.get(i).getBooking_id()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String status = dataSnapshot.child("booking_status").getValue(String.class);
+                Toast.makeText(context, status+ " Not Tidert", Toast.LENGTH_LONG).show();
 
-                switch(status.toLowerCase()) {
-                    case "done":
+                switch(status) {
+                    case "DONE":
                         handler.imgStatus.setImageResource(R.drawable.ic_status_done);
                         break;
-                    case "progress":
+                    case "PROGRESS":
                         handler.imgStatus.setImageResource(R.drawable.ic_status_progress);
                         break;
-                    case "pending":
+                    case "PENDING":
+                        Toast.makeText(context, "PEND", Toast.LENGTH_LONG).show();
                         handler.imgStatus.setImageResource(R.drawable.ic_status_pending);
                         break;
-                    case "canceled":
+                    case "CANCELED":
                         handler.imgStatus.setImageResource(R.drawable.ic_status_canceled);
                         break;
                 }

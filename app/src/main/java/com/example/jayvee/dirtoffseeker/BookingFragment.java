@@ -60,6 +60,8 @@ public class BookingFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent bookingIntent = new Intent(getActivity(), BookingInformationActivity.class);
+                bookingIntent.putExtra("index", i);
+                bookingIntent.putExtra("booking", bookingList.get(i));
                 startActivity(bookingIntent);
             }
         });
@@ -87,19 +89,16 @@ public class BookingFragment extends Fragment {
                         bookingList.clear();
 
                         try {
-                            Booking booking = null;
+                            Booking booking;
+                            userDatabase.deleteAllBooking();
 
                             for (DataSnapshot child : dataSnapshot.getChildren()) {
                                 booking = child.getValue(Booking.class);
 
                                 if (booking != null) {
                                     bookingList.add(booking);
+                                    userDatabase.addBooking(booking.getBooking_date(), booking.getBooking_id(), booking.getBooking_status(), booking.getBooking_time(), booking.getLaundWorker_fn(), booking.getLaundWorker_fbid(), booking.getLaundWorker_ln(), booking.getLaundWorker_mn(), booking.getLaundWorker_pic(), booking.getLaundSeeker_fbid(), booking.getBooking_service(), booking.getBooking_fee());
                                 }
-                            }
-
-                            if (booking != null) {
-                                userDatabase.deleteAllBooking();
-                                userDatabase.addBooking(booking.getBooking_date(), booking.getBooking_id(), booking.getBooking_status(), booking.getBooking_time(), booking.getLaundWorker_fn(), booking.getLaundWorker_fbid(), booking.getLaundWorker_ln(), booking.getLaundWorker_mn(), booking.getLaundWorker_pic(), booking.getLaundSeeker_fbid(), booking.getBooking_service(), booking.getBooking_fee());
                             }
 
                             adapter = new BookingListAdapter(mContext, bookingList);

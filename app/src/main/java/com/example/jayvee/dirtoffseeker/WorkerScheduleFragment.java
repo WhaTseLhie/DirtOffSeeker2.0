@@ -56,7 +56,6 @@ public class WorkerScheduleFragment extends Fragment implements DatePickerDialog
         View view = inflater.inflate(R.layout.fragment_worker_schedule, container, false);
 
         userDatabase = new UserDatabase(getActivity());
-        //bookingList = userDatabase.getAllBooking();
         historyList = userDatabase.getAllHistoryBooking();
         txtBulk = view.findViewById(R.id.textView);
         mContext = getActivity();
@@ -100,7 +99,7 @@ public class WorkerScheduleFragment extends Fragment implements DatePickerDialog
                 laundSeeker_fbid = userList.get(0).getLaundSeeker_fbid();
 
                 DatabaseReference bookingReference = FirebaseDatabase.getInstance().getReference().child("bookingList").child(laundWorker_fbid).child("weeklyBook");
-                bookingReference.child("1").addValueEventListener(new ValueEventListener() {
+                bookingReference.child(booking_id).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if(dataSnapshot.exists()) {
